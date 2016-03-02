@@ -1,0 +1,19 @@
+<html>
+	<head>
+		<title>FileEx</title>
+		<script type="text/javascript" src="js/uploader.js"></script>
+	</head>
+	<body>
+		<h1>FileEx</h1>
+
+		<div>
+			<form id="uploadForm" onsubmit="FileUploader.uploadFile(event)">
+				<input id="fileupload" name="upload" type="file" />
+				<input type="submit" value="submit" />
+			</form>
+		</div>
+		<div>
+			<ul id="messages"></ul>
+		</div>
+	</body>
+</html>
