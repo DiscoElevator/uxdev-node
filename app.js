@@ -40,6 +40,16 @@ app.get("/download/:fileId", (req, res, next) => {
 	});
 });
 
-app.listen(3000, () => {
-  console.log("FileEx listening on port 3000!");
+fs.access(UPLOAD_DIR_PATH, fs.F_OK, err => {
+	if (err) {
+		fs.mkdir(UPLOAD_DIR_PATH, startServer);
+	} else {
+		startServer();
+	}
 });
+
+function startServer() {
+	app.listen(3000, () => {
+		console.log("FileEx listening on port 3000!");
+	});
+}
