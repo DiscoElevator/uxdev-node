@@ -19,12 +19,18 @@ const diskStorage = multer.diskStorage({
 	}
 });
 
-const uploader = multer({storage: diskStorage});
+const uploader = multer({
+	storage: diskStorage,
+	limits: {
+		fileSize: 1048576
+	}
+});
 const app = express();
 
 app.use("/", express.static(__dirname + "/public"));
 
-app.post("/upload", uploader.single("upload"), (req, res, next) => {
+var upload = uploader.single("upload");
+app.post("/upload", upload, (req, res, next) => {
 	res.status(200).json({
 		id: req.__fileId
 	});
@@ -39,11 +45,24 @@ app.get("/download/:fileId", (req, res, next) => {
 		}
 	});
 });
+app.use((err, req, res, next) => {
+	res.status(500).json({
+		err: err
+	});
+});
 
 fs.mkdir(UPLOAD_DIR_PATH, startServer);
 
 function startServer() {
 	app.listen(3000, () => {
 		console.log("FileEx listening on port 3000!");
+	});
+}
+
+function uploadFile(req, res, next) {
+	upload(req, res, err => {
+		if (err) {
+			next(err);
+		}
 	});
 }

@@ -17,13 +17,15 @@ window.FileUploader = window.FileUploader || {};
 			method: "POST",
 			body: formData
 		}).then(response => {
-			if (response.status === 200) {
-				response.json().then(json => {
+			response.json().then(json => {
+				if (json.err) {
+					FileUploader.appendMessage(getErrorMessage(json.err));
+				} else {
 					FileUploader.appendMessage("File '" + file.name + "' uploaded at url: " + window.location.href + "download/" + json.id);
-				}).catch(e => {
-					console.log("error parsing json:", e);
-				});
-			}
+				}
+			}).catch(e => {
+				console.log("error parsing json:", e);
+			});
 		}).catch(e => {
 			console.log(e);
 		});
@@ -40,4 +42,15 @@ window.FileUploader = window.FileUploader || {};
 		var messagesEl = document.querySelector("#messages");
 		messagesEl.appendChild(msgEl);
 	};
+
+	function getErrorMessage(error) {
+		if (!error) {
+			return null;
+		}
+		var result = "";
+		if ("LIMIT_FILE_SIZE" === error.code) {
+			result = "File size should not be > 10MB";
+		}
+		return result;
+	}
 })(window.FileUploader);
