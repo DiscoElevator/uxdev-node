@@ -2,8 +2,10 @@ const express = require("express");
 const multer = require("multer");
 const shortid = require("shortid");
 const fs = require("fs");
+const async = require("async");
 
 const UPLOAD_DIR_PATH = __dirname + "/uploads/";
+const FILE_LIFETIME = 1000 * 3600 * 48;
 
 const diskStorage = multer.diskStorage({
 	destination(req, file, callback) {
@@ -34,6 +36,9 @@ app.post("/upload", upload, (req, res, next) => {
 	res.status(200).json({
 		id: req.__fileId
 	});
+	setTimeout(() => {
+		deleteOldFile(req.__fileId);
+	}, FILE_LIFETIME);
 });
 app.get("/download/:fileId", (req, res, next) => {
 	var dirName = UPLOAD_DIR_PATH + req.params.fileId;
@@ -64,5 +69,24 @@ function uploadFile(req, res, next) {
 		if (err) {
 			next(err);
 		}
+	});
+}
+
+function deleteOldFile(fileId) {
+	var dirName = UPLOAD_DIR_PATH + fileId;
+	fs.readdir(dirName, (err, files) => {
+		if (!files) {
+			fs.rmdir(dirName);
+		}
+		var filesToDelete = files.map(file => {
+			return dirName + "/" + file;
+		});
+		async.each(filesToDelete, fs.unlink, err => {
+			if (!err) {
+				fs.rmdir(dirName);
+			} else {
+				console.log(err);
+			}
+		});
 	});
 }
