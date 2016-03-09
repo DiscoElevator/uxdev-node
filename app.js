@@ -23,7 +23,7 @@ app.post("/upload", upload, (req, res, next) => {
 app.get("/download/:fileId", (req, res, next) => {
 	var dirName = UPLOAD_DIR_PATH + req.params.fileId;
 	fs.readdir(dirName, (err, files) => {
-		if (files && (files.length === 1)) {
+		if (files && files[0]) {
 			res.download(dirName + "/" + files[0]);
 		} else {
 			res.sendStatus(404).send("No file found");
